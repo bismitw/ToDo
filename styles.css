@@ -48,7 +48,7 @@
     button {
     width: 25%;
     padding: 10px;
-    background-color: #6200ea;
+    background-color: #129b34;
     border: none;
     border-radius: 5px;
     color: #fff;
@@ -57,7 +57,7 @@
     }
 
     button:hover {
-    background-color: #3700b3;
+    background-color: #085620;
     }
 
     ul {
@@ -89,6 +89,18 @@
     cursor: pointer;
     }
 
+    .edit-btn{
+    background-color: #051ccc;
+    border: none;
+    padding: 5px;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer; 
+    }
+
+    .edit-btn:hover{
+        background-color: #1f1baa;
+    }
     li button:hover {
     background-color: #b71c1c;
     }

@@ -1,75 +1,101 @@
-    document.addEventListener('DOMContentLoaded',()=>{ //Wait for Page to load
+    document.addEventListener("DOMContentLoaded", () => {
+    //waiting for page to load.
 
-        //get HTML elements
-        const todoInput = document.getElementById("todo-input");
-        const addTaskButton = document.getElementById("add-task-btn");
-        const todoList = document.getElementById("todo-list");
+    //get HTML elements
+    const taskInput = document.getElementById("task-input");
+    const addTaskButton = document.getElementById("task-add-btn");
+    const taskList = document.getElementById("task-list");
 
+    //check browser for previous tasks
+    //converts stored text back to array
+    //use empty array if nothing found
+    let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 
-        //check browser for old tasks
-        //JSON.parse() converts stored text back to array
-        // ||[] means "use empty array if nothing found"
-        let tasks = JSON.parse(localStorage.getItem("tasks")) || []; 
+    //looping through each task and calling renderTask to display that.
+    tasks.forEach((task) => {
+        renderTask(task);
+    });
 
-        //loops through each saved task
-        //calls renderTask to display that on the screen.
-        tasks.forEach((task) => renderTask(task));
+    //Adding eventlistener to button click
+    addTaskButton.addEventListener("click", () => {
+        const taskText = taskInput.value.trim();
+        if (taskText === "") return; // ignoring empty inputs
 
-        //Listens for button click
-        //get text from input removes spaces
-
-        addTaskButton.addEventListener("click", () => {
-        const taskText = todoInput.value.trim(); //trim removes extra spaces at the end of the input
-        if (taskText === "") return; //ignore empty inputs
-
-        //create task object
+        //creating task objects
         const newTask = {
-            id: Date.now(),//unique number from current time
-            text: taskText,//what user typed
-            completed: false,// not done yet
+        id: Date.now(), // unique number
+        text: taskText, // what user typed
+        completed: false, // not completed or done yet
         };
-
-        //save and clear
-        tasks.push(newTask); //add to array
-        saveTasks();        //save to browser storage
+        tasks.push(newTask); //push the task to the array
+        saveTasks(); //save to browser storage
         renderTask(newTask);
-        todoInput.value = ""; //clear Input"empty input box"
-        console.log(tasks); //show in console
-        });
+        taskInput.value = ""; // clear input empty input box
+        console.log(tasks);
+    });
 
-        //Display single task
-        function renderTask(task) {
-        const li = document.createElement('li') //create <li> element 
-        li.setAttribute('data-id', task.id);   // add unique id
-        
-        if(task.completed) li.classList.add("completed");
-        
-        //task name, delete button, edit button
+    //function to display the tasks or render the task
+    function renderTask(task) {
+        //create an empty list item
+        const li = document.createElement("li"); // create li element.
+        li.setAttribute("data-id", task.id); // add unique id
+
+        //check if task is already completed
+        if (task.completed) li.classList.add("completed");
+
+        //Add content inside the li
         li.innerHTML = `
-        <span> ${task.text} </span>     
-        <button>delete</button>
-        <button>edit</button>
-        `;
+                <div class="task-left">
+                    <span >${task.text}</span>
+                </div> 
+                <div class="task-actions">
+                    <button class="edit-btn">Edit</button>
+                    <button class="delete-btn">Delete</button>
+                </div>    
+                `;
 
-        li.addEventListener('click', (e) => {
-            if(e.target.tagname === 'BUTTON') return;
-            task.completed = !task.completed
-            li.classList.toggle('completed')
-            saveTasks()
+        //click anywhere on li = toggle complete
+        li.addEventListener("click", (e) => {
+        if (e.target.tagName === "BUTTON") return;
+
+        task.completed = !task.completed; //flip true to false or false to true
+        li.classList.toggle("completed");
+        saveTasks();
         });
 
-        li.querySelector('button').addEventListener('click', (e) =>{
-            e.stopPropagation() //prevent toggle from firing
-            tasks= tasks.filter(t => t.id !== task.id)
-            li.remove();
-            saveTasks();
-        } )
-        todoList.appendChild(li) // add to list 
-        }
+        //Edit button (first button)
+        li.querySelector("button:nth-of-type(1)").addEventListener("click", (e) => {
+        e.stopPropagation(); //stop li toggle
 
-        //save to browser
-        function saveTasks() {
-        localStorage.setItem("tasks", JSON.stringify(tasks)); //converts arrays to text string 
-        //stores in browser stays after refresh.
+        const currentText = task.text;
+        const newText = prompt("Edit Task", currentText); // popup to edit
+
+        if (newText && newText.trim() !== "") {
+            task.text = newText.trim();
+            li.querySelector("span").textContent = task.text; //update display
+            saveTasks(); //save to localstorage
         }
-    })
+        });
+
+        //Delete button(second button)
+
+        li.querySelector("button:nth-of-type(2)").addEventListener("click", (e) => {
+        e.stopPropagation();
+
+        if (confirm("Delete this task?")) {
+            //confirm before delete
+            tasks = tasks.filter((t) => t.id !== task.id); //remove from array
+            li.remove(); //remove from screen
+            saveTasks(); //save updated array
+        }
+        });
+
+        taskList.appendChild(li); //add to the list
+    }
+
+    //function to save to browser localstorage
+    function saveTasks() {
+        localStorage.setItem("tasks", JSON.stringify(tasks)); //.stringify converts arrays into strings
+        //this stores in browser and stays there after refresh as well
+    }
+    });
